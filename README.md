@@ -1,14 +1,28 @@
 Codes for downloading and preparing surgical instrument data, which I intend to use for multiple side projects.
 
+
+
+Download videos:
+
     python download_videos.py <params_key> <video_dir> <hash_dict_filename>
+
+
+
+Extract frames:
+
+    python extract_frames.py videos VideoWranglingParams frames
+
+
+
+Pick random subsample from the frames:
+
+    python pick_random_sample.py frames 100 0 random_sample_frames_100_0
 
 
 
 TODO:
 
-1.) Implement extract_frames.py
-
-2.) Work on Relevance Detector (see below).
+1.) Work on Relevance Detector (see below - done with (a.)).
 
 
 

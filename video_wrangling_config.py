@@ -15,7 +15,7 @@ class VideoWranglingParams:
         self.video_urls = {'ortho_and_general' : [], 'how_its_made_instruments' : [], 'sterilizing_instruments' : []}
         self.video_urls['ortho_and_general'].append('https://www.youtube.com/watch?v=vTnuyCHunOk')
         self.video_urls['ortho_and_general'].append('https://www.youtube.com/watch?v=dIf3U9NTsQs')
-        self.video_urls['ortho_and_general'].append('https://www.youtube.com/watch?v=GEgRaoNHKA4') #this one is vertical :(
+        self.video_urls['ortho_and_general'].append('https://www.youtube.com/watch?v=GEgRaoNHKA4') #this one might look vertical, but there's no padding :)
         self.video_urls['ortho_and_general'].append('https://www.youtube.com/watch?v=QUc7r241rrk')
         self.video_urls['ortho_and_general'].append('https://www.youtube.com/watch?v=0F9NwKWYack')
         self.video_urls['ortho_and_general'].append('https://www.youtube.com/watch?v=RGa4YsCUg_E')
@@ -31,11 +31,11 @@ class VideoWranglingParams:
         
         #this section is used by extract_frames.py ONLY
         #each image filename will be something like <VIDEO_BASENAME>-frame#####.jpg
-        #where the frame number is the actual frame number, not just 1,2,3,...,1000
-        self.num_frames_per_video = 1000 #keep any one video from having too much influence
-        self.frame_sampling_mode = 'random.sample' #frames_to_use = random.sample(all_frames, 1000)
+        #where the frame number is the actual frame number, not just 1,2,3,...,5000
+        self.num_frames_per_video = 5000 #keep any one video from having too much influence
+        self.frame_sampling_mode = 'random.sample' #frames_to_use = random.sample(all_frames, 5000)
         self.frame_sampling_seed = 0 #only call random.seed() ONCE - this is just for reproducibility
-        self.side_cutoff_dict = {} #will map <VIDEO_BASENAME> to number of pixels to cut off of both sides, ONLY including videos that are vertical. #TODO: FILL THIS IN!!!
+        self.side_cutoff_dict = {} #will map <VIDEO_BASENAME> to number of pixels to cut off of both sides, ONLY including videos that need it. None need it so far! :)
 
 def grab_params(params_key):
     return eval(params_key + '()')
