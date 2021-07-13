@@ -22,7 +22,7 @@ Pick random subsample from the frames:
 
 TODO:
 
-1.) Work on Relevance Detector (see below - done with (a.)).
+1.) Items (d.), (f.), (g.) of Relevance Detector (see below).
 
 
 
