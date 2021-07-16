@@ -48,11 +48,11 @@ class RelevanceModel(nn.Module):
 
     #xEmbedding should be NCHW on GPU
     #will return an NCHW on GPU where C==1 and the others are the same
-    #it will be probabilities
+    #it will be logits (use torch.nn.BCEWithLogitsLoss)
     def forward(self, xEmbedding):
         x = self.components(xEmbedding)
-        x, _ = torch.max(x, dim=1, keepdims=True)
-        return nn.Sigmoid()(x)
+        logits, _ = torch.max(x, dim=1, keepdims=True)
+        return logits
 
 if __name__ == '__main__':
     import numpy as np

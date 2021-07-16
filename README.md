@@ -2,27 +2,31 @@ Codes for downloading and preparing surgical instrument data, which I intend to 
 
 
 
+Example commands below assume data is being stored in existing "~/InstrumentData" directory.
+
+
+
 Download videos:
 
-    python download_videos.py <params_key> <video_dir> <hash_dict_filename>
+    python download_videos.py VideoWranglingParams ~/InstrumentData/videos ~/InstrumentData/video_hash_dict.pkl
 
 
 
 Extract frames:
 
-    python extract_frames.py videos VideoWranglingParams frames
+    python extract_frames.py ~/InstrumentData/videos VideoWranglingParams ~/InstrumentData/frames
 
 
 
 Pick random subsample from the frames:
 
-    python pick_random_sample.py frames 100 0 random_sample_frames_100_0
+    python pick_random_sample.py ~/InstrumentData/frames 100 0 ~/InstrumentData/random_sample_frames_100_0
 
 
 
 TODO:
 
-1.) Items (d.), (f.), (g.) of Relevance Detector (see below).
+1.) Items (d.) (training part - data generator is done), (f.), (g.) of Relevance Detector (see below).
 
 
 

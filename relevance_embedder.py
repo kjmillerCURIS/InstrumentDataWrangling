@@ -64,8 +64,9 @@ class RelevanceEmbedder:
     #any augmentations should already be done to it
     #will return a float32 tensor of shape NCHW, where N==1 and C==2048
     #this tensor is computed on the GPU
-    #if embedding_to_CPU is true, then we do .to('cpu').detach() on it - use this during training/validation when you want to store lots of image embeddings in RAM
+    #if embedding_to_CPU is true, then we do .to('cpu').detach() on it - use this during training/validation when you want to store lots of image embeddings in CPU RAM
     #if embedding_to_CPU is false, then we only do .detach() on it - use this in testing when you want to do further inference on an embedded image, and then let go of the reference
+    #either way, the detach happens, so at worst we'll only keep the embedding itself on the GPU
     #if bboxes is None, then we'll only return the embedding
     #but if bboxes is not None, then it should be a list of dictionaries
     #possibly an empty list if image has no bboxes labelled
