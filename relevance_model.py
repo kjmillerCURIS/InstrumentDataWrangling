@@ -39,12 +39,13 @@ class RelevanceModel(nn.Module):
         if self.p.trust_multiplier == float('+inf'):
             return
 
-        mags = torch.sqrt(torch.sum(torch.square(self.components.weight.data), dim=1))
-        mags = torch.maximum(mags, torch.tensor(1e-8, device='cuda'))
-        upper = torch.tensor(self.trust_base_value * self.p.trust_multiplier, device='cuda')
-        multipliers = torch.minimum(upper / mags, torch.tensor(1.0, device='cuda'))
-        multipliers = torch.unsqueeze(multipliers, 1)
-        self.components.weight.data = self.components.weight.data * multipliers
+        with torch.no_grad():
+            mags = torch.sqrt(torch.sum(torch.square(self.components.weight.data), dim=1))
+            mags = torch.maximum(mags, torch.tensor(1e-8, device='cuda'))
+            upper = torch.tensor(self.trust_base_value * self.p.trust_multiplier, device='cuda')
+            multipliers = torch.minimum(upper / mags, torch.tensor(1.0, device='cuda'))
+            multipliers = torch.unsqueeze(multipliers, 1)
+            self.components.weight.data = self.components.weight.data * multipliers
 
     #xEmbedding should be NCHW on GPU
     #will return an NCHW on GPU where C==1 and the others are the same

@@ -26,7 +26,7 @@ Pick random subsample from the frames:
 
 TODO:
 
-1.) Items (d.) (training part - data generator is done), (f.), (g.) of Relevance Detector (see below).
+1.) Items (f.), (g.) of Relevance Detector (see below), plus actually labelling the bboxes and making a script to convert them to pkl.
 
 
 

@@ -15,12 +15,15 @@ class RelevanceParams16Comp1Trust:
         #data generator
         self.batch_size = 32 #for training, half of these will be negative and half will be positive
 
-        #model + training
+        #model building/definition
         self.num_components = 16
         self.trust_multiplier = 1.0 #multiply this by avg(||w_c||_2^2) where w_c are the linear readout weights of the model specified by self.architecture
+
+        #training
         self.learning_rate = 1e-3 #look up default value for this
         self.num_training_steps = 2000 #for now
-        self.val_prop = 0.1
+        self.val_prop = 0.2 #train-val split will NOT have a random seed
+        self.prop_no_bbox_in_val = 0.3 #proportion of validation set that should be images with NO bboxes
         self.val_freq = 50
 
 class RelevanceParams1Comp1Trust(RelevanceParams16Comp1Trust):

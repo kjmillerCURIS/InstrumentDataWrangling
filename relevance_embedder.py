@@ -31,8 +31,10 @@ class RelevanceEmbedder:
         for bbox in bboxes:
             gt_heatmap_full[bbox['ymin']:bbox['ymax'], bbox['xmin']:bbox['xmax']] = 1.0
 
-        hIn = torch.tensor(gt_heatmap_full[np.newaxis, np.newaxis, :, :])
-        hOut = nn.AdaptiveAvgPool2d(target_shape)
+        with torch.no_grad():
+            hIn = torch.tensor(gt_heatmap_full[np.newaxis, np.newaxis, :, :])
+            hOut = nn.AdaptiveAvgPool2d(target_shape)
+
         return np.squeeze(hOut.numpy())
 
     #makes numI into a tensor that can be fed into self.embedding_model
@@ -64,9 +66,9 @@ class RelevanceEmbedder:
     #any augmentations should already be done to it
     #will return a float32 tensor of shape NCHW, where N==1 and C==2048
     #this tensor is computed on the GPU
-    #if embedding_to_CPU is true, then we do .to('cpu').detach() on it - use this during training/validation when you want to store lots of image embeddings in CPU RAM
-    #if embedding_to_CPU is false, then we only do .detach() on it - use this in testing when you want to do further inference on an embedded image, and then let go of the reference
-    #either way, the detach happens, so at worst we'll only keep the embedding itself on the GPU
+    #if embedding_to_CPU is true, then we do .to('cpu') on it - use this during training/validation when you want to store lots of image embeddings in CPU RAM
+    #if embedding_to_CPU is false, then we keep it on GPU - use this in testing when you want to do further inference on an embedded image, and then let go of the reference
+    #either way, this is all with torch.no_grad(), so at worst we'll only keep the embedding itself on the GPU
     #if bboxes is None, then we'll only return the embedding
     #but if bboxes is not None, then it should be a list of dictionaries
     #possibly an empty list if image has no bboxes labelled
@@ -76,12 +78,12 @@ class RelevanceEmbedder:
     #This might seem inconsistent with the other returned value, but it makes sense because the returned embedding might go straight into another NN, whereas the heatmap won't
     #bbox computation happens entirely on the CPU and is detached - we're just using AdaptiveAvgPool2d, so it's not worth the GPU overhead
     def __call__(self, numI, embedding_to_CPU=False, bboxes=None):
-        xImage = self.__image_to_tensor__(numI)
-        xEmbedding = self.embedding_model(xImage)
-        if embedding_to_CPU:
-            xEmbedding = xEmbedding.to('cpu')
+        with torch.no_grad():
+            xImage = self.__image_to_tensor__(numI)
+            xEmbedding = self.embedding_model(xImage)
 
-        xEmbedding = xEmbedding.detach()
+            if embedding_to_CPU:
+                xEmbedding = xEmbedding.to('cpu')
 
         if bboxes is None:
             return xEmbedding
