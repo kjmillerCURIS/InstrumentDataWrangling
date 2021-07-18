@@ -10,7 +10,7 @@ from relevance_embedder import RelevanceEmbedder
 #returns numI_perm, bboxes_perm
 def permute_image_and_bboxes(numI, bboxes, perm):
     assert(isinstance(perm, int) and perm >= 0 and perm < 8)
-    numI_perm = copy.deepcopy(numI_perm)
+    numI_perm = copy.deepcopy(numI)
     bboxes_perm = copy.deepcopy(bboxes)
     
     #check each bit of perm to decide whether to do vertical flip, horizontal flip, transpose
@@ -66,7 +66,7 @@ def run_embedder(image_filenames, bboxes_dict, mode, params):
         numI = cv2.imread(image_filename)
         bboxes = bboxes_dict[image_base] 
         perm_list = {'train' : range(8), 'val' : [0]}
-        for perm in perm_list:
+        for perm in perm_list[mode]:
             numI_perm, bboxes_perm = permute_image_and_bboxes(numI, bboxes, perm)
             xEmbedding, prob_map = re(numI_perm, embedding_to_CPU=True, bboxes=bboxes_perm)
             xEmbedding = xEmbedding.numpy()

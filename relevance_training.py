@@ -15,10 +15,10 @@ from relevance_model import RelevanceModel
 #does a training step and returns the loss of the one training batch
 def train_step(X, y, my_model, my_opt):
     my_model.train()
-    X = X.to('cuda')
-    y = y.to('cuda')
+    X = torch.tensor(X).to('cuda')
+    y = torch.tensor(y).to('cuda')
     logits = my_model(X)
-    my_loss = nn.BCEWithLogitsLoss(torch.flatten(logits), y)
+    my_loss = nn.BCEWithLogitsLoss()(torch.flatten(logits), y)
     my_opt.zero_grad()
     my_loss.backward()
     my_opt.step()
@@ -49,8 +49,9 @@ def val_step(val_genny, my_model):
             break
 
         with torch.no_grad():
-            X = X.to('cuda')
-            y = y.to('cuda')
+            X = torch.tensor(X).to('cuda')
+            gts = y
+            y = torch.tensor(y).to('cuda')
             logits = my_model(X)
             logits = torch.flatten(logits).to('cpu').numpy()
             assert(logits.shape == gts.shape)
@@ -58,17 +59,17 @@ def val_step(val_genny, my_model):
                 one_loss = one_BCE(logit, gt)
                 if gt == 0:
                     gt_neg_sum_BCE += one_loss
-                    gt_neg_sum_N += 1
+                    gt_neg_N += 1
                 elif gt == 1:
                     gt_pos_sum_BCE += one_loss
-                    gt_pos_sum_N += 1
+                    gt_pos_N += 1
                 else:
                     assert(False)
 
-    gt_pos_loss = gt_pos_sum_BCE / gt_pos_sum_N
-    gt_neg_loss = gt_neg_sum_BCE / gt_neg_sum_N
+    gt_pos_loss = gt_pos_sum_BCE / gt_pos_N
+    gt_neg_loss = gt_neg_sum_BCE / gt_neg_N
     balanced_loss = 0.5 * gt_pos_loss + 0.5 * gt_neg_loss
-    return {'gt_pos_sum_N' : gt_pos_sum_N, 'gt_neg_sum_N' : gt_neg_sum_N, 'gt_pos_loss' : gt_pos_loss, 'gt_neg_loss' : gt_neg_loss, 'balanced_loss' : balanced_loss}
+    return {'gt_pos_N' : gt_pos_N, 'gt_neg_N' : gt_neg_N, 'gt_pos_loss' : gt_pos_loss, 'gt_neg_loss' : gt_neg_loss, 'balanced_loss' : balanced_loss}
 
 #need to take in result because it will already have stuff in it
 #will save best model whenever it improves, and save result to result_filename at end
@@ -88,6 +89,7 @@ def training_loop(train_genny, val_genny, model_filename, result, result_filenam
             result['val_losses'][t] = val_result
             val_loss = val_result['balanced_loss']
             if val_loss < best_val_loss:
+                best_val_loss = val_loss
 
                 #no need to deepcopy the my_model.state_dict(), because saving it would make a copy on disk
                 #HOWEVER, if you were to hold on to my_model.state_dict() it in RAM, then you WOULD need to deepcopy it!
@@ -100,7 +102,7 @@ def training_loop(train_genny, val_genny, model_filename, result, result_filenam
             with open(result_filename, 'wb') as f:
                 pickle.dump(result, f)
 
-        X, y = (train_genny)
+        X, y = next(train_genny)
         train_loss = train_step(X, y, my_model, my_opt)
         print('.', end='', flush=True)
         result['train_losses'][t] = train_loss
@@ -111,7 +113,7 @@ def training_loop(train_genny, val_genny, model_filename, result, result_filenam
 
 def make_train_val_split_helper(image_bases, num_val):
     val_image_bases = random.sample(image_bases, num_val)
-    train_image_bases = [image_base for image_base in images_bases if image_base not in val_image_bases]
+    train_image_bases = [image_base for image_base in image_bases if image_base not in val_image_bases]
     return train_image_bases, val_image_bases
 
 #return train_image_filenames, val_image_filenames
@@ -139,8 +141,8 @@ def make_train_val_split(image_filenames, bboxes_dict, params):
     t_empty, v_empty = make_train_val_split_helper(empty_image_bases, num_val_empty)
     train_image_bases.extend(t_empty)
     val_image_bases.extend(v_empty)
-    train_image_filenames = [image_bases_to_filename[image_base] for image_base in train_image_bases]
-    val_image_filenames = [image_bases_to_filename[image_base] for image_base in val_image_bases]
+    train_image_filenames = [image_bases_to_filenames[image_base] for image_base in train_image_bases]
+    val_image_filenames = [image_bases_to_filenames[image_base] for image_base in val_image_bases]
     return train_image_filenames, val_image_filenames
 
 #bboxes_dict_filename will be a pickle
@@ -149,7 +151,7 @@ def make_train_val_split(image_filenames, bboxes_dict, params):
 #take in result because someone else creates it
 def get_generators(image_dir, bboxes_dict_filename, result, params):
     p = params
-    result['bbox_dict_filename'] = os.path.abspath(bbox_dict_filename)
+    result['bboxes_dict_filename'] = os.path.abspath(bboxes_dict_filename)
     result['image_dir'] = os.path.abspath(image_dir)
     with open(bboxes_dict_filename, 'rb') as f:
         bboxes_dict = pickle.load(f)

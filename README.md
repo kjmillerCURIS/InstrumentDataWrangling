@@ -24,9 +24,30 @@ Pick random subsample from the frames:
 
 
 
+Gather labelled bboxes into one pkl file:
+
+    python make_bboxes_dict.py ~/InstrumentData/random_sample_frames_100_0 ~/InstrumentData/relevance_gt_label_JSONs ~/InstrumentData/relevance_gt_bboxes_dict.pkl
+
+
+
+Train a model (one example):
+
+    python relevance_training.py ~/InstrumentData/random_sample_frames_100_0 ~/InstrumentData/relevance_gt_bboxes_dict.pkl RelevanceParams16Comp1Trust ~/InstrumentData/relevance_results/RelevanceParams16Comp1Trust-model.pt ~/InstrumentData/relevance_results/RelevanceParams16Comp1Trust-result.pkl
+
+
+
+Visualize segmentations:
+
+    python explore_segmentations.py ~/InstrumentData/frames
+
+
+
+
+
+
 TODO:
 
-1.) Items (f.), (g.) of Relevance Detector (see below), plus actually labelling the bboxes and making a script to convert them to pkl.
+1.) Items (f.) and bbox-vis part of (g.). And also choose the best relevance model. And also write a script that bulk-crops the entire dataset.
 
 
 

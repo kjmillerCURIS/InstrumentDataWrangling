@@ -19,6 +19,7 @@ class RelevanceEmbedder:
             assert(False)
 
         self.embedding_model = nn.Sequential(*list(full_model.children())[:-2]).to('cuda')
+        self.embedding_model.eval()
 
     #returns avg
     def get_trust_base_value(self):
@@ -33,7 +34,7 @@ class RelevanceEmbedder:
 
         with torch.no_grad():
             hIn = torch.tensor(gt_heatmap_full[np.newaxis, np.newaxis, :, :])
-            hOut = nn.AdaptiveAvgPool2d(target_shape)
+            hOut = nn.AdaptiveAvgPool2d(target_shape)(hIn)
 
         return np.squeeze(hOut.numpy())
 
